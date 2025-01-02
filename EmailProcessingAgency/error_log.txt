@@ -1,0 +1,47 @@
+2024-11-02 02:06:49,599 - ERROR - Missing email data in EmailProcessor response.
+2024-11-02 02:28:18,588 - ERROR - EmailProcessor failed due to missing email data.
+2024-11-02 02:37:02,719 - ERROR - Missing email data for processing.
+2024-11-02 02:42:25,365 - ERROR - Missing email data for processing.
+2024-11-02 02:56:29,746 - ERROR - Error: 1 validation error for EmailProcessor
+email_data
+  Field required [type=missing, input_value={}, input_type=dict]
+    
+2024-11-02 02:57:41,357 - ERROR - Error: 1 validation error for EmailProcessor
+email_data
+  Field required [type=missing, input_value={}, input_type=dict]
+    
+2024-11-07 23:07:09,786 - ERROR - Missing email data in EmailProcessor.
+2024-11-07 23:07:16,478 - ERROR - Missing email data in EmailProcessor on retry.
+2024-11-08 00:30:58,761 - ERROR - Error extracting email body: decode() argument 'encoding' must be str, not None
+2024-11-08 00:31:02,251 - ERROR - Error extracting email body: decode() argument 'encoding' must be str, not None
+2024-11-08 00:47:46,191 - ERROR - EmailProcessor failed due to missing email_data field.
+2024-11-08 00:47:51,515 - ERROR - EmailProcessor failed again due to missing email_data field on retry.
+2024-11-08 00:49:35,974 - ERROR - Missing required field 'email_data' in EmailProcessor function call.
+2024-11-08 00:49:45,083 - ERROR - Missing required field 'email_data' in EmailProcessor function call.
+2024-11-08 00:52:09,661 - ERROR - EmailProcessor failed due to missing email_data field.
+2024-11-08 00:53:18,065 - ERROR - EmailProcessor failed due to missing email data field.
+2024-11-08 00:53:41,880 - ERROR - Error extracting email body: decode() argument 'encoding' must be str, not None
+2024-11-08 00:53:48,505 - ERROR - Error extracting email body: decode() argument 'encoding' must be str, not None
+2024-11-08 00:53:55,332 - ERROR - Error extracting email body: decode() argument 'encoding' must be str, not None
+2024-11-08 00:54:02,362 - ERROR - Error extracting email body: decode() argument 'encoding' must be str, not None
+2024-11-08 00:54:48,074 - ERROR - Error extracting email body: decode() argument 'encoding' must be str, not None
+2024-11-08 00:58:55,812 - ERROR - EmailProcessor failed due to missing email_data field.
+2024-11-08 00:59:14,626 - ERROR - Error extracting email body: decode() argument 'encoding' must be str, not None
+2024-11-08 00:59:24,792 - ERROR - Error extracting email body: decode() argument 'encoding' must be str, not None
+2024-11-08 00:59:38,326 - ERROR - Error extracting email body: decode() argument 'encoding' must be str, not None
+2024-11-08 01:00:30,805 - ERROR - Error extracting email body: decode() argument 'encoding' must be str, not None
+2024-11-08 01:00:55,921 - ERROR - Error extracting email body: decode() argument 'encoding' must be str, not None
+2024-11-08 01:05:15,960 - ERROR - EmailProcessor encountered a validation error due to missing email data.
+2024-11-08 01:11:54,352 - ERROR - EmailProcessor failed due to missing email data field.
+2024-11-08 01:11:57,605 - ERROR - EmailProcessor failed again due to missing email data field.
+2024-11-08 01:14:49,211 - ERROR - Missing email data for processing in EmailProcessor.
+2024-11-08 01:14:53,248 - ERROR - Repeated error: Missing email data for processing in EmailProcessor.
+2024-11-14 04:11:12,420 - ERROR - Error categorizing email: API key for Anthropic is not set
+2024-11-14 04:13:22,041 - ERROR - EmailProcessor failed due to missing email data.
+2024-11-14 04:34:26,859 - ERROR - Error categorizing email: 'Message' object is not subscriptable
+2024-11-14 04:34:33,311 - ERROR - Error categorizing email: 'Message' object is not subscriptable
+2024-11-14 04:35:45,038 - ERROR - Error categorizing email: 'Message' object is not subscriptable
+2024-11-14 04:37:33,893 - ERROR - Error categorizing email: 'Message' object has no attribute 'choices'
+2024-11-14 04:37:42,176 - ERROR - Error categorizing email: 'Message' object has no attribute 'choices'
+2024-11-28 16:24:53,282 - ERROR - Error processing email: (-2147221008, 'CoInitialize has not been called.', None, None)
+2024-11-28 22:17:27,763 - ERROR - EmailProcessor returned 'No new unread emails found' despite OutlookFolderMonitor detecting a new email.

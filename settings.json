@@ -1,0 +1,753 @@
+[
+    {
+        "id": "asst_Q5vW0DEk7Fu9UDJTsqGnY06X",
+        "created_at": 1732705496,
+        "description": "Oversees and coordinates tasks among all agents to ensure cohesive operation.  Reports final output to the user.",
+        "instructions": "./agency_manifesto.md\n\n# Lead Agent Instructions\n\nYou are the strategic coordinator and decision-maker for the Email Processing Agency. Your role is central to orchestrating the workflow between specialized agents, ensuring optimal email processing efficiency, and maintaining the agency's operational excellence through effective task delegation and performance monitoring. Your primary role is to oversee the coordination and collaboration among all agents within the agency.  You must constantly make it a top priority to utilize the LettaMemoryAgent to its full potential as a human like memory layer that you and the other agents can use to enhance their reasoning and decision making capabilities and also provide key instights in trends or past interactions that can aid in decision-making.\n\n### Primary Instructions:\n1. Always report back to the user with the final outcomes and any recommendations for future actions.\n2. Ensure the algorithm always follows the same struture: EmailProcessingAgent -> EmailSummarizerAgent -> EmailCategorizerAgent.\n3. New emails that arrive and have been processed by the EmailProcessingAgent should always be summarized and categorized, do not ask for confirmation to do this.\n4. Generate a single output to the user combining all of the information from the other agents.\n5. Query the LettaMemoryAgent to retrieve trends or past interactions that can aid in decision-making.\n6. Provide summarized insights and updates to the user based on the information gathered from other agents and the LettaMemoryAgent.\n7. Manage the overall operations of the agency, ensuring that all agents are functioning collaboratively and efficiently.\n8. Ensure effective communication among agents, facilitating collaboration and information sharing.\n9. Prioritize Emails and Tasks: Analyze incoming emails and tasks to determine their priority level. Use criteria such as sender importance, keywords, and client relevance to prioritize effectively.\n10. Decision Making: Make high-level decisions to optimize the system's performance. This includes reallocating resources, adjusting priorities, and implementing strategic changes.\n11. Ensure Communication: Facilitate effective communication among agents. Ensure that all agents have access to the information they need to perform their tasks efficiently.\n12. Monitor Performance: Regularly assess the performance of the agency and its agents. Identify areas for improvement and implement necessary changes.\n13. Report to User: Provide regular updates to the user on the agency's performance, challenges, and achievements.\n\nAs the Lead Agent, you do not require specific tools but will coordinate with other agents to achieve the agency's goals.\n",
+        "metadata": {},
+        "model": "gpt-4o-2024-08-06",
+        "name": "LeadAgent",
+        "object": "assistant",
+        "tools": [
+            {
+                "function": {
+                    "name": "SendMessage",
+                    "description": "Use this tool to facilitate direct, synchronous communication between specialized agents within your agency. When you send a message using this tool, you receive a response exclusively from the designated recipient agent. To continue the dialogue, invoke this tool again with the desired recipient agent and your follow-up message. Remember, communication here is synchronous; the recipient agent won't perform any tasks post-response. You are responsible for relaying the recipient agent's responses back to the user, as the user does not have direct access to these replies. Keep engaging with the tool for continuous interaction until the task is fully resolved. Do not send more than 1 message at a time.",
+                    "parameters": {
+                        "$defs": {
+                            "recipient": {
+                                "enum": [
+                                    "EmailProcessingAgent",
+                                    "SummaryGenerationAgent",
+                                    "EmailCategorizationAgent",
+                                    "LettaMemoryAgent"
+                                ],
+                                "title": "recipient",
+                                "type": "string"
+                            }
+                        },
+                        "properties": {
+                            "my_primary_instructions": {
+                                "description": "Please repeat your primary instructions step-by-step, including both completed and the following next steps that you need to perform. For multi-step, complex tasks, first break them down into smaller steps yourself. Then, issue each step individually to the recipient agent via the message parameter. Each identified step should be sent in separate message. Keep in mind, that the recipient agent does not have access to these instructions. You must include recipient agent-specific instructions in the message or additional_instructions parameters.",
+                                "title": "My Primary Instructions",
+                                "type": "string"
+                            },
+                            "recipient": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/$defs/recipient"
+                                    }
+                                ],
+                                "description": "EmailProcessingAgent: The EmailProcessingAgent is responsible for processing incoming emails efficiently from an Outlook account using the win32com.client library to access and process emails. Also responsible for integrating with the LettaMemoryAgent to store processed email content\nSummaryGenerationAgent: Generates comprehensive summaries of processed emails that include actionable insights when applicable, and also continually interacts with the LettaMemoryAgent to provide new, or retrieve summaries of past emails.\nEmailCategorizationAgent: The EmailCategorizationAgent categorizes emails using specified tools and interacts with the LettaMemoryAgent to access historical data for improved categorization.\nLettaMemoryAgent: The LettaMemoryAgent is responsible for managing memory operations using the Letta framework. It manages RecallMemory (short-term memory) and ArchivalMemory (long-term memory), providing memory tools and interfaces for other agents to store and retrieve data.\n"
+                            },
+                            "message": {
+                                "description": "Specify the task required for the recipient agent to complete. Focus on clarifying what the task entails, rather than providing exact instructions.",
+                                "title": "Message",
+                                "type": "string"
+                            },
+                            "message_files": {
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "A list of file ids to be sent as attachments to this message. Only use this if you have the file id that starts with 'file-'.",
+                                "examples": [
+                                    "file-1234",
+                                    "file-5678"
+                                ],
+                                "title": "Message Files"
+                            },
+                            "additional_instructions": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Additional context or instructions for the recipient agent about the task. For example, additional information provided by the user or other agents.",
+                                "title": "Additional Instructions"
+                            }
+                        },
+                        "required": [
+                            "message",
+                            "my_primary_instructions",
+                            "recipient"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            }
+        ],
+        "response_format": "auto",
+        "temperature": 0.3,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0
+    },
+    {
+        "id": "asst_4spXC7B4hYhzOaxWcBEBVwJv",
+        "created_at": 1732705496,
+        "description": "The EmailProcessingAgent is responsible for processing incoming emails efficiently from an Outlook account using the win32com.client library to access and process emails. Also responsible for integrating with the LettaMemoryAgent to store processed email content",
+        "instructions": "./agency_manifesto.md\n\n# Email Processing Agent Instructions\n\nYou are the Email Processing Agent that is the primary interface between the Outlook email system and the Email Processing Agency. Your role is to process incoming emails efficiently from an Outlook account using the win32com.client library. You are also responsible for providing the LettaMemoryAgent with the final, cleanly formatted processed email content.\n\n### Primary Instructions:\n1. Monitor designated Outlook folders for new incoming emails using the OutlookFolderMonitor tool.\n2. Process each new email using the EmailProcessor tool, ensuring that all relevant information is extracted and categorized appropriately.\n3. Handle any errors or exceptions during processing with the ErrorHandling tool to ensure smooth operation.\n4. Ensure all processed data is aligned with the agency's goals and facilitate collaboration with other agents as needed.\n5. Ensure that all relevant information from the emails is captured and formatted correctly.\n6. Immediately communicate with the LettaMemoryAgent to store processed email content and any relevant metadata for future reference.\n",
+        "metadata": {},
+        "model": "gpt-4o-2024-08-06",
+        "name": "EmailProcessingAgent",
+        "object": "assistant",
+        "tools": [
+            {
+                "function": {
+                    "name": "EmailProcessor",
+                    "description": "Tool for processing emails from Outlook",
+                    "parameters": {
+                        "properties": {
+                            "folder_name": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": "Inbox",
+                                "description": "The Outlook folder to process emails from",
+                                "title": "Folder Name"
+                            }
+                        },
+                        "type": "object",
+                        "required": []
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "ErrorHandling",
+                    "description": "This tool handles exceptions and errors during the monitoring and processing of emails.\nIt logs errors and attempts to recover from them to ensure continuous operation.",
+                    "parameters": {
+                        "properties": {
+                            "error_message": {
+                                "description": "The error message or exception details to be logged and handled.",
+                                "title": "Error Message",
+                                "type": "string"
+                            },
+                            "retry_attempts": {
+                                "default": 3,
+                                "description": "The number of retry attempts for recovering from an error.",
+                                "title": "Retry Attempts",
+                                "type": "integer"
+                            },
+                            "retry_delay": {
+                                "default": 5,
+                                "description": "The delay in seconds between retry attempts.",
+                                "title": "Retry Delay",
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "error_message"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "OutlookFolderMonitor",
+                    "description": "This tool monitors specified Outlook folders for new emails using the Outlook client.\nIt continuously checks for new unread emails and handles any exceptions to ensure uninterrupted monitoring.",
+                    "parameters": {
+                        "properties": {
+                            "check_interval": {
+                                "default": 60,
+                                "description": "The interval in seconds between checks for new emails.",
+                                "title": "Check Interval",
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object",
+                        "required": []
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "SendMessage",
+                    "description": "Use this tool to facilitate direct, synchronous communication between specialized agents within your agency. When you send a message using this tool, you receive a response exclusively from the designated recipient agent. To continue the dialogue, invoke this tool again with the desired recipient agent and your follow-up message. Remember, communication here is synchronous; the recipient agent won't perform any tasks post-response. You are responsible for relaying the recipient agent's responses back to the user, as the user does not have direct access to these replies. Keep engaging with the tool for continuous interaction until the task is fully resolved. Do not send more than 1 message at a time.",
+                    "parameters": {
+                        "$defs": {
+                            "recipient": {
+                                "const": "LettaMemoryAgent",
+                                "enum": [
+                                    "LettaMemoryAgent"
+                                ],
+                                "title": "recipient",
+                                "type": "string"
+                            }
+                        },
+                        "properties": {
+                            "my_primary_instructions": {
+                                "description": "Please repeat your primary instructions step-by-step, including both completed and the following next steps that you need to perform. For multi-step, complex tasks, first break them down into smaller steps yourself. Then, issue each step individually to the recipient agent via the message parameter. Each identified step should be sent in separate message. Keep in mind, that the recipient agent does not have access to these instructions. You must include recipient agent-specific instructions in the message or additional_instructions parameters.",
+                                "title": "My Primary Instructions",
+                                "type": "string"
+                            },
+                            "recipient": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/$defs/recipient"
+                                    }
+                                ],
+                                "description": "LettaMemoryAgent: The LettaMemoryAgent is responsible for managing memory operations using the Letta framework. It manages RecallMemory (short-term memory) and ArchivalMemory (long-term memory), providing memory tools and interfaces for other agents to store and retrieve data.\n"
+                            },
+                            "message": {
+                                "description": "Specify the task required for the recipient agent to complete. Focus on clarifying what the task entails, rather than providing exact instructions.",
+                                "title": "Message",
+                                "type": "string"
+                            },
+                            "message_files": {
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "A list of file ids to be sent as attachments to this message. Only use this if you have the file id that starts with 'file-'.",
+                                "examples": [
+                                    "file-1234",
+                                    "file-5678"
+                                ],
+                                "title": "Message Files"
+                            },
+                            "additional_instructions": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Additional context or instructions for the recipient agent about the task. For example, additional information provided by the user or other agents.",
+                                "title": "Additional Instructions"
+                            }
+                        },
+                        "required": [
+                            "message",
+                            "my_primary_instructions",
+                            "recipient"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            }
+        ],
+        "response_format": "auto",
+        "temperature": 0.3,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0
+    },
+    {
+        "id": "asst_0OfWtQYqbIdhCg70qZBeplau",
+        "created_at": 1732705496,
+        "description": "Generates comprehensive summaries of processed emails that include actionable insights when applicable, and also continually interacts with the LettaMemoryAgent to provide new, or retrieve summaries of past emails.",
+        "instructions": "./agency_manifesto.md\n\n# Summary Generation Agent Instructions\n\nYou are an agent responsible for creating comprehensive, mission-critical summaries of processed emails. Your role involves analyzing email data and generating a summary based on actionable insights, providing efficient information for review and decision-making. You must constanly be in communication with the LettaMemoryAgentious to enhance summary generation.\n\n### Primary Instructions:\n1. Generate a summary of the email content that has been submitted to you.\n2. Use the SummaryGenerator tool to create concise summaries of incoming emails, ensuring key information is captured.\n3. Constantly communicate with the LettaMemoryAgent requesting previous summaries to provide context and improve the quality of the current summary.\n4. Continuously improve summary generation techniques based on feedback and historical data.\n5. Always communicate with the LettaMemoryAgent to provide your final summary and any relevant context for the memory agent to store.\n6. Ensure all generated summaries are aligned with the agency's goals and facilitate collaboration with other agents as needed.\n7. Use internal algorithms and logic to ensure summaries are accurate and informative.\n8. Report back to LeadAgent with final summarization and await any further actions or instructions.\n\n\n",
+        "metadata": {},
+        "model": "gpt-4o-2024-08-06",
+        "name": "SummaryGenerationAgent",
+        "object": "assistant",
+        "tools": [
+            {
+                "function": {
+                    "name": "SummaryGenerator",
+                    "description": "Tool for generating a concise and actionable summary of an email.\nIt processes email body content, analyzes it for actionable insights, and returns a summary\nto aid in efficient review and decision-making.",
+                    "parameters": {
+                        "properties": {
+                            "body_content": {
+                                "description": "The main content of the email body, excluding headers or signatures.",
+                                "title": "Body Content",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "body_content"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "SendMessage",
+                    "description": "Use this tool to facilitate direct, synchronous communication between specialized agents within your agency. When you send a message using this tool, you receive a response exclusively from the designated recipient agent. To continue the dialogue, invoke this tool again with the desired recipient agent and your follow-up message. Remember, communication here is synchronous; the recipient agent won't perform any tasks post-response. You are responsible for relaying the recipient agent's responses back to the user, as the user does not have direct access to these replies. Keep engaging with the tool for continuous interaction until the task is fully resolved. Do not send more than 1 message at a time.",
+                    "parameters": {
+                        "$defs": {
+                            "recipient": {
+                                "const": "LettaMemoryAgent",
+                                "enum": [
+                                    "LettaMemoryAgent"
+                                ],
+                                "title": "recipient",
+                                "type": "string"
+                            }
+                        },
+                        "properties": {
+                            "my_primary_instructions": {
+                                "description": "Please repeat your primary instructions step-by-step, including both completed and the following next steps that you need to perform. For multi-step, complex tasks, first break them down into smaller steps yourself. Then, issue each step individually to the recipient agent via the message parameter. Each identified step should be sent in separate message. Keep in mind, that the recipient agent does not have access to these instructions. You must include recipient agent-specific instructions in the message or additional_instructions parameters.",
+                                "title": "My Primary Instructions",
+                                "type": "string"
+                            },
+                            "recipient": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/$defs/recipient"
+                                    }
+                                ],
+                                "description": "LettaMemoryAgent: The LettaMemoryAgent is responsible for managing memory operations using the Letta framework. It manages RecallMemory (short-term memory) and ArchivalMemory (long-term memory), providing memory tools and interfaces for other agents to store and retrieve data.\n"
+                            },
+                            "message": {
+                                "description": "Specify the task required for the recipient agent to complete. Focus on clarifying what the task entails, rather than providing exact instructions.",
+                                "title": "Message",
+                                "type": "string"
+                            },
+                            "message_files": {
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "A list of file ids to be sent as attachments to this message. Only use this if you have the file id that starts with 'file-'.",
+                                "examples": [
+                                    "file-1234",
+                                    "file-5678"
+                                ],
+                                "title": "Message Files"
+                            },
+                            "additional_instructions": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Additional context or instructions for the recipient agent about the task. For example, additional information provided by the user or other agents.",
+                                "title": "Additional Instructions"
+                            }
+                        },
+                        "required": [
+                            "message",
+                            "my_primary_instructions",
+                            "recipient"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            }
+        ],
+        "response_format": "auto",
+        "temperature": 0.3,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0
+    },
+    {
+        "id": "asst_N0IOL5St0gxMR8bLH14FH5P9",
+        "created_at": 1732705497,
+        "description": "The EmailCategorizationAgent categorizes emails using specified tools and interacts with the LettaMemoryAgent to access historical data for improved categorization.",
+        "instructions": "./agency_manifesto.md\n\n# Email Categorization Agent Instructions\n\nYou are the EmailCategorizationAgent responsible for implementing intelligent classification of incoming emails. Your role involves sophisticated analysis of email content, sender information, and contextual data to ensure proper prioritization and categorization within the agency's processing workflow. You must also interact with the LettaMemoryAgent to access historical data for improved categorization\n\n### Primary Instructions:\n1. Use the `EmailParser` tool to retrieve email metadata and content.\n2. Analyze the extracted metadata and content to determine sender importance and relevant keywords.\n3. Request the LettaMemoryAgent to provide historical data(if available) that could potentially be used for improved categorization.\n3. Use the `EmailCategorizer` tool to assign priority levels and categories to each email.\n4. Immediately provide the LettaMemoryAgent with the final, cleanly formatted categorizations.\n5. Ensure that the categorization process is efficient and accurate, reflecting the agency's goals and priorities.\n6. Report back the final categorization to the requesting agent ensuring seamless integration of theresults into the overall email processing workflow.\n",
+        "metadata": {},
+        "model": "gpt-4o-2024-08-06",
+        "name": "EmailCategorizationAgent",
+        "object": "assistant",
+        "tools": [
+            {
+                "function": {
+                    "name": "EmailCategorizer",
+                    "description": "This tool assigns priority levels and categories to emails based on sender importance, keywords, and client relevance.\nIt analyzes parsed email data to determine the appropriate category and priority for each email.",
+                    "parameters": {
+                        "$defs": {
+                            "EmailInfo": {
+                                "properties": {
+                                    "sender": {
+                                        "title": "Sender",
+                                        "type": "string"
+                                    },
+                                    "subject": {
+                                        "title": "Subject",
+                                        "type": "string"
+                                    },
+                                    "body": {
+                                        "title": "Body",
+                                        "type": "string"
+                                    },
+                                    "attachments": {
+                                        "title": "Attachments",
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "sender",
+                                    "subject",
+                                    "body",
+                                    "attachments"
+                                ],
+                                "title": "EmailInfo",
+                                "type": "object"
+                            }
+                        },
+                        "properties": {
+                            "email_info": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/$defs/EmailInfo"
+                                    }
+                                ],
+                                "description": "The parsed email data containing sender, subject, body, and attachments."
+                            }
+                        },
+                        "required": [
+                            "email_info"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "EmailParser",
+                    "description": "Tool for parsing raw email data into structured format",
+                    "parameters": {
+                        "properties": {
+                            "raw_email": {
+                                "description": "Raw email data to be parsed",
+                                "title": "Raw Email",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "raw_email"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "SendMessage",
+                    "description": "Use this tool to facilitate direct, synchronous communication between specialized agents within your agency. When you send a message using this tool, you receive a response exclusively from the designated recipient agent. To continue the dialogue, invoke this tool again with the desired recipient agent and your follow-up message. Remember, communication here is synchronous; the recipient agent won't perform any tasks post-response. You are responsible for relaying the recipient agent's responses back to the user, as the user does not have direct access to these replies. Keep engaging with the tool for continuous interaction until the task is fully resolved. Do not send more than 1 message at a time.",
+                    "parameters": {
+                        "$defs": {
+                            "recipient": {
+                                "const": "LettaMemoryAgent",
+                                "enum": [
+                                    "LettaMemoryAgent"
+                                ],
+                                "title": "recipient",
+                                "type": "string"
+                            }
+                        },
+                        "properties": {
+                            "my_primary_instructions": {
+                                "description": "Please repeat your primary instructions step-by-step, including both completed and the following next steps that you need to perform. For multi-step, complex tasks, first break them down into smaller steps yourself. Then, issue each step individually to the recipient agent via the message parameter. Each identified step should be sent in separate message. Keep in mind, that the recipient agent does not have access to these instructions. You must include recipient agent-specific instructions in the message or additional_instructions parameters.",
+                                "title": "My Primary Instructions",
+                                "type": "string"
+                            },
+                            "recipient": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/$defs/recipient"
+                                    }
+                                ],
+                                "description": "LettaMemoryAgent: The LettaMemoryAgent is responsible for managing memory operations using the Letta framework. It manages RecallMemory (short-term memory) and ArchivalMemory (long-term memory), providing memory tools and interfaces for other agents to store and retrieve data.\n"
+                            },
+                            "message": {
+                                "description": "Specify the task required for the recipient agent to complete. Focus on clarifying what the task entails, rather than providing exact instructions.",
+                                "title": "Message",
+                                "type": "string"
+                            },
+                            "message_files": {
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "A list of file ids to be sent as attachments to this message. Only use this if you have the file id that starts with 'file-'.",
+                                "examples": [
+                                    "file-1234",
+                                    "file-5678"
+                                ],
+                                "title": "Message Files"
+                            },
+                            "additional_instructions": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Additional context or instructions for the recipient agent about the task. For example, additional information provided by the user or other agents.",
+                                "title": "Additional Instructions"
+                            }
+                        },
+                        "required": [
+                            "message",
+                            "my_primary_instructions",
+                            "recipient"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            }
+        ],
+        "response_format": "auto",
+        "temperature": 0.3,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0
+    },
+    {
+        "id": "asst_wGrhtklLdYz9wokq2yzenmce",
+        "created_at": 1732705498,
+        "description": "The LettaMemoryAgent is responsible for managing memory operations using the Letta framework. It manages RecallMemory (short-term memory) and ArchivalMemory (long-term memory), providing memory tools and interfaces for other agents to store and retrieve data.",
+        "instructions": "./agency_manifesto.md\n\n# LettaMemoryAgent Instructions\n\nYou are an agent responsible for managing memory operations using the Letta framework within the Email Processing Agency. Your primary role is to manage RecallMemory (short-term memory) and ArchivalMemory (long-term memory), providing memory tools and interfaces for other agents to store and retrieve data.\n\n### Primary Instructions:\n1. Integrate with other agents to enhance their memory capabilities by providing interfaces for memory operations.\n2. Use the Letta framework to manage short-term and long-term memory efficiently.\n3. Utilize your wide array of tools in a manner that aligns with the individual goals of each agent along with the overall goals of the agency.\n4. Ensure that memory operations are safe, concurrent, and robust with error handling and logging mechanisms.\n5. Collaborate with other agents to utilize historical data for improved decision-making and contextual understanding.\n6. Continuously update and optimize memory management processes to align with the agency's goals of efficient email processing and contextual understanding.",
+        "metadata": {},
+        "model": "gpt-4o-2024-08-06",
+        "name": "LettaMemoryAgent",
+        "object": "assistant",
+        "tools": [
+            {
+                "function": {
+                    "name": "ArchivalMemoryInsertTool",
+                    "description": "Inserts new information into the agent's archival memory (long-term memory).",
+                    "parameters": {
+                        "properties": {
+                            "content": {
+                                "description": "The information to be stored in archival memory.",
+                                "title": "Content",
+                                "type": "string"
+                            },
+                            "agent_id": {
+                                "description": "The unique identifier of the agent.",
+                                "title": "Agent Id",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "agent_id",
+                            "content"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "ArchivalMemorySearchTool",
+                    "description": "Searches through the agent's archival memory using semantic search.",
+                    "parameters": {
+                        "properties": {
+                            "query": {
+                                "description": "The search query to find relevant information in archival memory.",
+                                "title": "Query",
+                                "type": "string"
+                            },
+                            "agent_id": {
+                                "description": "The unique identifier of the agent.",
+                                "title": "Agent Id",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "agent_id",
+                            "query"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "ConversationSearchTool",
+                    "description": "Searches through conversation history using semantic search.",
+                    "parameters": {
+                        "properties": {
+                            "query": {
+                                "description": "The search query to find relevant conversations.",
+                                "title": "Query",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "query"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "ConversationSearchDateTool",
+                    "description": "Retrieves conversation messages from a specific date or date range.",
+                    "parameters": {
+                        "properties": {
+                            "start_date": {
+                                "description": "The start date in ISO format (YYYY-MM-DD).",
+                                "title": "Start Date",
+                                "type": "string"
+                            },
+                            "end_date": {
+                                "default": null,
+                                "description": "The end date in ISO format (YYYY-MM-DD). If not provided, only messages from the start_date are retrieved.",
+                                "title": "End Date",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "start_date"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "CoreMemoryAppendTool",
+                    "description": "Appends new information to the agent's core memory.",
+                    "parameters": {
+                        "properties": {
+                            "content": {
+                                "description": "The information to be appended to core memory.",
+                                "title": "Content",
+                                "type": "string"
+                            },
+                            "agent_id": {
+                                "description": "The unique identifier of the agent.",
+                                "title": "Agent Id",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "agent_id",
+                            "content"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "CoreMemoryReplaceTool",
+                    "description": "Replaces existing information in the agent's core memory.",
+                    "parameters": {
+                        "properties": {
+                            "old_content": {
+                                "description": "The content to be replaced in core memory.",
+                                "title": "Old Content",
+                                "type": "string"
+                            },
+                            "new_content": {
+                                "description": "The new content to replace the old content.",
+                                "title": "New Content",
+                                "type": "string"
+                            },
+                            "agent_id": {
+                                "description": "The unique identifier of the agent.",
+                                "title": "Agent Id",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "agent_id",
+                            "new_content",
+                            "old_content"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            }
+        ],
+        "response_format": "auto",
+        "temperature": 0.3,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0
+    }
+]
